@@ -21,6 +21,9 @@
         position: relative;
         width: 450px;
         height: 320px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     /* ENVELOPE */
@@ -29,7 +32,7 @@
         height: 100%;
         background: #fff;
         position: absolute;
-        top: 0;
+        bottom: 0;
         left: 0;
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -38,6 +41,7 @@
         transition: transform 0.8s ease, opacity 0.8s ease;
     }
 
+    /* The Flap */
     .flap {
         position: absolute;
         width: 100%;
@@ -45,7 +49,7 @@
         background: #f8c8dc;
         clip-path: polygon(0 0, 100% 0, 50% 60%);
         transform-origin: top;
-        transition: transform 0.7s ease;
+        transition: transform 0.5s ease;
         z-index: 6;
     }
 
@@ -64,58 +68,72 @@
         justify-content: center;
         color: white;
         font-weight: bold;
+        transition: opacity 0.3s ease;
     }
 
-    /* LETTER (hidden inside envelope at start) */
+    /* LETTER - Hidden and positioned inside envelope initially */
     .letter {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        min-height: 650px;
+        bottom: 10%; /* Starts slightly inside */
+        width: 90%;
+        height: auto;
+        max-height: 500px;
         background: #fffdf5;
-        padding: 50px;
+        padding: 40px;
         box-sizing: border-box;
-        border-radius: 10px;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-        z-index: 2;
-        line-height: 1.9;
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        z-index: 4; /* Behind the envelope flap/front */
+        line-height: 1.6;
         text-align: justify;
-
-        /* hidden inside envelope */
-        transform: translateY(120px) scale(0.95);
+        
+        /* Initial State: Invisible and tucked down */
         opacity: 0;
-        transition: transform 1s ease, opacity 0.8s ease;
+        visibility: hidden;
+        transform: translateY(50px);
+        transition: transform 1s ease, opacity 0.8s ease, visibility 0.8s;
+        transition-delay: 0s; /* No delay when closing */
+        overflow-y: auto;
     }
 
-    /* OPEN STATE */
+    /* OPEN STATE ANIMATIONS */
     .container.open .flap {
         transform: rotateX(180deg);
+        z-index: 3; /* Move flap behind letter once opened */
     }
 
     .container.open .envelope {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
+        /* We move the envelope down slightly or fade it so the letter is the focus */
+        transform: translateY(100px);
+        opacity: 0.5;
         pointer-events: none;
     }
 
+    .container.open .seal {
+        opacity: 0;
+    }
+
     .container.open .letter {
-        transform: translateY(0) scale(1);
+        visibility: visible;
         opacity: 1;
+        /* The letter slides UP out of the envelope */
+        transform: translateY(-150px) scale(1.1); 
+        z-index: 10;
+        transition-delay: 0.6s; /* Wait for flap to open before sliding out */
     }
 
     .letter p {
-        margin: 16px 0;
-        font-size: 18px;
+        margin: 10px 0;
+        font-size: 16px;
     }
 
     .signature {
-        margin-top: 40px;
+        margin-top: 20px;
         text-align: right;
         font-style: italic;
     }
 
-    /* hearts */
+    /* HEARTS */
     .heart {
         position: fixed;
         width: 15px;
@@ -124,6 +142,8 @@
         transform: rotate(45deg);
         animation: float 6s linear infinite;
         opacity: 0.9;
+        bottom: -20px;
+        z-index: 100;
     }
 
     .heart::before,
@@ -141,7 +161,7 @@
 
     @keyframes float {
         0% { transform: translateY(0) rotate(45deg); opacity: 1; }
-        100% { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
+        100% { transform: translateY(-110vh) rotate(45deg); opacity: 0; }
     }
 </style>
 </head>
@@ -149,25 +169,21 @@
 
 <div class="container" id="container">
 
-    <!-- LETTER (behind envelope, hidden initially) -->
     <div class="letter">
         <p><strong>Happy Birthday Love!</strong></p>
 
         <p>I thank God for today, because even though the world doesn't deserve it,
         you came and made it better. I wish you more success and happiness in the years
-        to come. Its been months since we met, and I can truly say those months were
-        the best months of my life. I finally found that someone I can truly be happy with.</p>
+        to come. It's been months since we met, and I can truly say those months were
+        the best months of my life.</p>
 
-        <p>You always ask me why I fell inlove with you, to be honest there is so much that I can't list
-        them all. But I can say this, you make me happy. You make me a better person.
-        You make life worth living. And I can't wait to spend the rest of my days with you,
-        and get to know you fully. No matter what life throws at us, be it for better or 
-        for worse. I want it to be with you.</p>
+        <p>You always ask me why I fell in love with you... honestly, you make me a better person. 
+        I can't wait to spend the rest of my days with you. No matter what life throws at us, 
+        I want it to be with you.</p>
 
         <p class="signature">Yours truly,<br>Kevin2026</p>
     </div>
 
-    <!-- ENVELOPE -->
     <div class="envelope" onclick="toggleLetter()">
         <div class="flap"></div>
         <div class="seal">❤</div>
@@ -178,46 +194,42 @@
 <audio id="bgMusic" src="birthday.mp3" preload="auto" playsinline></audio>
 
 <script>
-let heartInterval;
+// Start hearts immediately on load
+window.onload = function() {
+    setInterval(createHeart, 400);
+};
 
 function toggleLetter() {
     const container = document.getElementById('container');
     const music = document.getElementById('bgMusic');
-
     const isOpen = container.classList.contains('open');
 
     if (!isOpen) {
         container.classList.add('open');
-
-        // music
         music.volume = 0.5;
-        music.currentTime = 0;
-        music.play().catch(err => console.log(err));
-
-        // continuous hearts
-        heartInterval = setInterval(createHeart, 300);
-
+        music.play().catch(err => console.log("Audio play blocked by browser. Click again!"));
     } else {
         container.classList.remove('open');
-
         music.pause();
-        music.currentTime = 0;
-
-        // stop hearts
-        clearInterval(heartInterval);
     }
 }
 
 function createHeart() {
     const heart = document.createElement('div');
     heart.classList.add('heart');
-    heart.style.left = Math.random() * window.innerWidth + 'px';
-    heart.style.bottom = '0px';
-    heart.style.animationDuration = (4 + Math.random() * 2) + 's';
+    heart.style.left = Math.random() * 100 + 'vw';
+    // Randomize color slightly for variety
+    const colors = ['#ff4d4d', '#ff0000', '#ff8080', '#e60000'];
+    heart.style.background = colors[Math.floor(Math.random() * colors.length)];
+    
+    heart.style.animationDuration = (4 + Math.random() * 3) + 's';
+    heart.style.opacity = 0.5 + Math.random() * 0.5;
 
     document.body.appendChild(heart);
 
-    setTimeout(() => heart.remove(), 6000);
+    setTimeout(() => {
+        heart.remove();
+    }, 6000);
 }
 </script>
 
