@@ -19,8 +19,8 @@
     /* WRAPPER */
     .container {
         position: relative;
-        width: 420px;
-        height: 260px;
+        width: 450px;
+        height: 300px;
     }
 
     /* ENVELOPE */
@@ -28,11 +28,14 @@
         width: 100%;
         height: 100%;
         background: #fff;
-        position: relative;
+        position: absolute;
+        top: 0;
+        left: 0;
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        z-index: 3;
-        border-radius: 6px;
+        z-index: 5;
+        border-radius: 8px;
+        transition: opacity 0.6s ease, transform 0.6s ease;
     }
 
     .flap {
@@ -43,7 +46,7 @@
         clip-path: polygon(0 0, 100% 0, 50% 60%);
         transform-origin: top;
         transition: transform 0.6s ease;
-        z-index: 4;
+        z-index: 6;
     }
 
     .seal {
@@ -55,7 +58,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        z-index: 5;
+        z-index: 7;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -63,52 +66,54 @@
         font-weight: bold;
     }
 
-    /* LETTER */
+    /* LETTER (BEHIND ENVELOPE BUT BIGGER) */
     .letter {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        min-height: 520px;
+        min-height: 600px;
         background: #fffdf5;
-        padding: 45px;
+        padding: 50px;
         box-sizing: border-box;
         border-radius: 10px;
         box-shadow: 0 25px 60px rgba(0,0,0,0.25);
         z-index: 1;
-        transform: translateY(30px) scale(0.95);
-        opacity: 0;
-        transition: all 0.8s ease;
         line-height: 1.9;
         text-align: justify;
     }
 
     /* OPEN STATE */
-    .container.open .flap {
-        transform: rotateX(180deg);
+    .container.open .envelope {
+        opacity: 0;
+        transform: scale(0.9);
+        pointer-events: none;
     }
 
-    .container.open .letter {
-        opacity: 1;
-        transform: translateY(0) scale(1.05);
-        z-index: 10;
+    .container.open .flap {
+        transform: rotateX(180deg);
     }
 
     .container.open .seal {
         display: none;
     }
 
+    .container.open .letter {
+        z-index: 10;
+    }
+
     .letter p {
-        margin: 14px 0;
-        font-size: 17px;
+        margin: 16px 0;
+        font-size: 18px;
     }
 
     .signature {
-        margin-top: 30px;
+        margin-top: 40px;
         text-align: right;
         font-style: italic;
     }
 
+    /* hearts */
     .heart {
         position: absolute;
         width: 15px;
@@ -141,6 +146,7 @@
 
 <div class="container" id="container">
 
+    <!-- LETTER -->
     <div class="letter">
         <p><strong>Happy Birthday Love!</strong></p>
 
@@ -158,6 +164,7 @@
         <p class="signature">Yours truly,<br>Kevin2026</p>
     </div>
 
+    <!-- ENVELOPE -->
     <div class="envelope" onclick="toggleLetter()">
         <div class="flap"></div>
         <div class="seal">❤</div>
@@ -175,18 +182,15 @@ function toggleLetter() {
     const isOpen = container.classList.contains('open');
 
     if (!isOpen) {
-        // OPEN
         container.classList.add('open');
         createHearts();
 
-        music.volume = 0.2;
+        music.volume = 0.5;
         music.currentTime = 0;
         music.play().catch(err => console.log(err));
 
     } else {
-        // CLOSE
         container.classList.remove('open');
-
         music.pause();
         music.currentTime = 0;
     }
