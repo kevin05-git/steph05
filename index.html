@@ -14,6 +14,7 @@
         background: linear-gradient(135deg, #ff9a9e, #fad0c4);
         font-family: 'Georgia', serif;
         overflow: hidden;
+        transition: all 0.8s ease;
     }
 
     .envelope {
@@ -23,8 +24,8 @@
         position: relative;
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        transition: transform 0.5s ease;
-        overflow: visible; /* allow letter to come out */
+        transition: opacity 0.8s ease;
+        overflow: visible;
     }
 
     .flap {
@@ -63,17 +64,18 @@
     .letter {
         position: absolute;
         width: 90%;
-        background: #fff8dc;
+        background: #fffdf5;
         bottom: 0;
         left: 5%;
-        padding: 25px;
+        padding: 30px;
         box-sizing: border-box;
-        transform: translateY(120%); /* hidden inside envelope */
+        transform: translateY(120%);
         opacity: 0;
         transition: transform 0.9s ease, opacity 0.6s ease;
         box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         border-radius: 6px;
-        line-height: 1.6;
+        line-height: 1.8;
+        text-align: justify;
     }
 
     .open .flap {
@@ -81,7 +83,7 @@
     }
 
     .open .letter {
-        transform: translateY(-130%); /* slides out above envelope */
+        transform: translateY(-130%);
         opacity: 1;
     }
 
@@ -89,13 +91,38 @@
         display: none;
     }
 
+    /* FINAL FULL LETTER VIEW */
+    .final .envelope {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .final {
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 40px;
+        overflow: hidden;
+    }
+
+    .final .letter {
+        position: relative;
+        transform: none;
+        opacity: 1;
+        width: 700px;
+        max-width: 90%;
+        margin: 0 auto;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        border-radius: 8px;
+    }
+
     .letter p {
-        margin: 12px 0;
+        margin: 14px 0;
     }
 
     .signature {
-        margin-top: 25px;
+        margin-top: 30px;
         font-style: italic;
+        text-align: right;
     }
 
     /* floating hearts */
@@ -140,7 +167,7 @@
     <div class="flap"></div>
     <div class="seal">❤</div>
 
-    <div class="letter">
+    <div class="letter" id="letter">
         <p><strong>Happy Birthday Love!</strong></p>
 
         <p>I thank God for today, because even though the world doesn't deserve it,
@@ -158,7 +185,6 @@
     </div>
 </div>
 
-<!-- Local Background Music -->
 <audio id="bgMusic" src="assets/music/birthday.mp3" preload="auto"></audio>
 
 <script>
@@ -172,13 +198,18 @@ function openLetter(el) {
 
     let volume = 0;
     const fade = setInterval(() => {
-        if (volume < 0.5) {
+        if (volume < 0.3) {
             volume += 0.02;
             music.volume = volume;
         } else {
             clearInterval(fade);
         }
     }, 200);
+
+    // after animation, fade envelope and show full letter
+    setTimeout(() => {
+        document.body.classList.add('final');
+    }, 1200);
 }
 
 function createHearts() {
