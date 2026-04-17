@@ -172,15 +172,15 @@ function toggleLetter() {
 
     if (!isOpen) {
         container.classList.add('open');
-        music.play().catch(e => console.log("Music play blocked"));
 
-        // HEARTS START ONLY NOW
+        // Set volume to 20%
+        music.volume = 0.2; 
+        
+        music.play().catch(e => console.log("Music play blocked"));
         heartInterval = setInterval(createHeart, 300);
     } else {
         container.classList.remove('open');
         music.pause();
-
-        // HEARTS STOP
         clearInterval(heartInterval);
     }
 }
