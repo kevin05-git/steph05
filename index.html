@@ -16,15 +16,23 @@
         overflow: hidden;
     }
 
+    /* WRAPPER */
+    .container {
+        position: relative;
+        width: 420px;
+        height: 260px;
+    }
+
+    /* ENVELOPE */
     .envelope {
-        width: 380px;
-        height: 220px;
+        width: 100%;
+        height: 100%;
         background: #fff;
         position: relative;
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        transition: opacity 0.8s ease;
         z-index: 2;
+        border-radius: 6px;
     }
 
     .flap {
@@ -35,19 +43,19 @@
         clip-path: polygon(0 0, 100% 0, 50% 60%);
         transform-origin: top;
         transition: transform 0.6s ease;
-        z-index: 2;
+        z-index: 3;
     }
 
     .seal {
-        width: 50px;
-        height: 50px;
+        width: 55px;
+        height: 55px;
         background: crimson;
         border-radius: 50%;
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        z-index: 3;
+        z-index: 4;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -55,52 +63,50 @@
         font-weight: bold;
     }
 
+    /* LETTER (START HIDDEN BEHIND ENVELOPE) */
     .letter {
         position: absolute;
-        width: 90%;
-        max-width: 1000px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        min-height: 420px;
         background: #fffdf5;
-        padding: 50px;
+        padding: 40px;
         box-sizing: border-box;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, 120%);
-        /* IMPORTANT: no opacity fade */
-        transition: transform 0.9s ease;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-        border-radius: 8px;
-        line-height: 2;
-        text-align: justify;
+        border-radius: 10px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.25);
         z-index: 1;
+        transform: scale(0.9) translateY(20px);
+        opacity: 0;
+        transition: all 0.8s ease;
+        line-height: 1.9;
+        text-align: justify;
     }
 
+    /* OPEN STATE */
     .open .flap {
         transform: rotateX(180deg);
+    }
+
+    .open .letter {
+        opacity: 1;
+        transform: scale(1.05) translateY(0);
+        z-index: 5; /* covers envelope */
     }
 
     .open .seal {
         display: none;
     }
 
-    .final .envelope {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .final .letter {
-        transform: translate(-50%, -50%);
-    }
-
     .letter p {
-        margin: 18px 0;
-        font-size: 18px;
+        margin: 14px 0;
+        font-size: 17px;
     }
 
     .signature {
-        margin-top: 50px;
-        font-style: italic;
+        margin-top: 30px;
         text-align: right;
-        font-size: 18px;
+        font-style: italic;
     }
 
     .heart {
@@ -133,29 +139,33 @@
 </head>
 <body>
 
-<div class="envelope" onclick="openLetter(this)">
-    <div class="flap"></div>
-    <div class="seal">❤</div>
+<div class="container">
+
+    <div class="letter">
+        <p><strong>Happy Birthday Love!</strong></p>
+
+        <p>I thank God for today, because even though the world doesn't deserve it,
+        you came and made it better. I wish you more success and happiness in the years
+        to come. Its been months since we met, and I can truly say those months were
+        the best months of my life. I finally found that someone I can truly be happy with.</p>
+
+        <p>You always ask me why I fell inlove with you, to be honest there is so much that I can't list
+        them all. But I can say this, you make me happy. You make me a better person.
+        You make life worth living. And I can't wait to spend the rest of my days with you,
+        and get to know you fully. No matter what life throws at us, be it for better or 
+        for worse. I want it to be with you.</p>
+
+        <p class="signature">Yours truly,<br>Kevin2026</p>
+    </div>
+
+    <div class="envelope" onclick="openLetter(this)">
+        <div class="flap"></div>
+        <div class="seal">❤</div>
+    </div>
+
 </div>
 
-<div class="letter">
-    <p><strong>Happy Birthday Love!</strong></p>
-
-    <p>I thank God for today, because even though the world doesn't deserve it,
-    you came and made it better. I wish you more success and happiness in the years
-    to come. Its been months since we met, and I can truly say those months were
-    the best months of my life. I finally found that someone I can truly be happy with.</p>
-
-    <p>You always ask me why I fell inlove with you, to be honest there is so much that I can't list
-    them all. But I can say this, you make me happy. You make me a better person.
-    You make life worth living. And I can't wait to spend the rest of my days with you,
-    and get to know you fully. No matter what life throws at us, be it for better or 
-    for worse. I want it to be with you.</p>
-
-    <p class="signature">Yours truly,<br>Kevin2026</p>
-</div>
-
-<audio id="bgMusic" src="birthday.mp3" preload="auto"></audio>
+<audio id="bgMusic" src="birthday.mp3" preload="auto" playsinline></audio>
 
 <script>
 function openLetter(el) {
@@ -164,31 +174,12 @@ function openLetter(el) {
 
     const music = document.getElementById('bgMusic');
 
-    // FIX: ensure play works
-    music.volume = 0;
-    const playPromise = music.play();
-
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            // fallback: try again on user interaction
-            document.body.addEventListener('click', () => music.play(), { once: true });
-        });
-    }
-
-    // fade in
-    let volume = 0;
-    const fade = setInterval(() => {
-        if (volume < 0.3) {
-            volume += 0.02;
-            music.volume = volume;
-        } else {
-            clearInterval(fade);
-        }
-    }, 200);
-
-    setTimeout(() => {
-        document.body.classList.add('final');
-    }, 800);
+    // FIX: ensure playback works on user click
+    music.volume = 0.3;
+    music.load();
+    music.play().catch(err => {
+        console.log('Autoplay blocked:', err);
+    });
 }
 
 function createHearts() {
