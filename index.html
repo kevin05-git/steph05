@@ -16,11 +16,12 @@
         overflow: hidden;
     }
 
-    /* CONTAINER - Stays centered */
+    /* CONTAINER */
     .container {
         position: relative;
         width: 450px;
         height: 320px;
+        perspective: 1000px; /* Adds depth for the flap flip */
     }
 
     /* ENVELOPE */
@@ -29,7 +30,7 @@
         height: 100%;
         background: #fff;
         position: absolute;
-        bottom: 0;
+        top: 0;
         left: 0;
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
@@ -45,7 +46,7 @@
         background: #f8c8dc;
         clip-path: polygon(0 0, 100% 0, 50% 60%);
         transform-origin: top;
-        transition: transform 0.5s ease;
+        transition: transform 0.6s ease;
         z-index: 6;
     }
 
@@ -63,44 +64,43 @@
         align-items: center;
         justify-content: center;
         color: white;
-        font-weight: bold;
-        transition: opacity 0.3s ease;
+        font-size: 24px;
+        transition: opacity 0.3s;
     }
 
-    /* LETTER - Centering Logic */
+    /* THE LETTER */
     .letter {
         position: absolute;
-        /* Positioned relative to the middle of the container */
+        /* Positioned exactly in the middle of the container */
         top: 50%;
         left: 50%;
         width: 90%;
-        max-height: 80vh; /* Prevents it from being taller than the screen */
+        height: auto;
+        max-height: 80vh;
         background: #fffdf5;
-        padding: 40px;
+        padding: 30px;
         box-sizing: border-box;
         border-radius: 10px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        z-index: 2; /* Behind the envelope front initially */
-        line-height: 1.6;
-        overflow-y: auto;
-
-        /* INITIAL STATE: Hidden, small, and tucked low */
+        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        z-index: 2; /* Starts behind the envelope */
+        
+        /* INITIAL STATE: Tiny, transparent, and slightly lower */
         opacity: 0;
-        visibility: hidden;
-        transform: translate(-50%, -20%) scale(0.2); 
+        transform: translate(-50%, -20%) scale(0.1);
         transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s ease;
+        pointer-events: none;
+        overflow-y: auto;
     }
 
-    /* OPEN STATE */
+    /* OPEN STATE ANIMATIONS */
     .container.open .flap {
         transform: rotateX(180deg);
         z-index: 1; /* Move flap behind letter */
     }
 
     .container.open .envelope {
-        transform: translateY(150px); /* Move envelope down out of the way */
-        opacity: 0.2;
-        pointer-events: none;
+        transform: translateY(120px); /* Moves envelope down */
+        opacity: 0.4;
     }
 
     .container.open .seal {
@@ -108,31 +108,45 @@
     }
 
     .container.open .letter {
-        visibility: visible;
         opacity: 1;
-        /* FINAL STATE: Centered and full size */
-        transform: translate(-50%, -50%) scale(1);
+        /* Moves to dead center and scales up */
+        transform: translate(-50%, -50%) scale(1.1);
         z-index: 10;
-        transition-delay: 0.5s; /* Wait for flap to open */
+        pointer-events: all;
+        transition-delay: 0.6s; /* Wait for flap to open */
     }
 
-    .letter p { margin: 10px 0; font-size: 16px; }
-    .signature { margin-top: 20px; text-align: right; font-style: italic; }
+    .letter p {
+        margin: 14px 0;
+        font-size: 16px;
+        line-height: 1.5;
+    }
 
-    /* CONTINUOUS HEARTS */
+    .signature {
+        margin-top: 30px;
+        text-align: right;
+        font-style: italic;
+    }
+
+    /* HEARTS */
     .heart {
         position: fixed;
         width: 15px;
         height: 15px;
         background: red;
         transform: rotate(45deg);
-        animation: float 6s linear infinite;
-        bottom: -20px;
+        animation: float 5s linear infinite;
         z-index: 100;
+        bottom: -20px;
     }
+
     .heart::before, .heart::after {
-        content: ''; width: 15px; height: 15px; background: red;
-        border-radius: 50%; position: absolute;
+        content: '';
+        width: 15px;
+        height: 15px;
+        background: red;
+        border-radius: 50%;
+        position: absolute;
     }
     .heart::before { top: -8px; left: 0; }
     .heart::after { left: -8px; top: 0; }
@@ -148,11 +162,8 @@
 <div class="container" id="container">
     <div class="letter">
         <p><strong>Happy Birthday Love!</strong></p>
-        <p>I thank God for today, because even though the world doesn't deserve it,
-        you came and made it better. I wish you more success and happiness in the years
-        to come.</p>
-        <p>You make me happy. You make me a better person. You make life worth living. 
-        I can't wait to spend the rest of my days with you.</p>
+        <p>I thank God for today, because even though the world doesn't deserve it, you came and made it better.</p>
+        <p>I finally found that someone I can truly be happy with. You make me a better person, and I can't wait to spend the rest of my days with you.</p>
         <p class="signature">Yours truly,<br>Kevin2026</p>
     </div>
 
@@ -165,21 +176,29 @@
 <audio id="bgMusic" src="birthday.mp3" preload="auto" playsinline></audio>
 
 <script>
-// Start hearts immediately
-window.onload = function() {
-    setInterval(createHeart, 400);
-};
+let heartInterval;
 
 function toggleLetter() {
     const container = document.getElementById('container');
     const music = document.getElementById('bgMusic');
-    container.classList.toggle('open');
+    const isOpen = container.classList.contains('open');
 
-    if (container.classList.contains('open')) {
-        music.volume = 0.3;
-        music.play().catch(err => console.log("Music play blocked"));
+    if (!isOpen) {
+        container.classList.add('open');
+
+        // Play Music
+        music.volume = 0.4;
+        music.play().catch(e => console.log("Audio waiting for user interaction"));
+
+        // TRIGGER HEARTS: Starts only when opened
+        heartInterval = setInterval(createHeart, 300);
+
     } else {
+        container.classList.remove('open');
         music.pause();
+        
+        // STOP HEARTS: Clears the interval when closed
+        clearInterval(heartInterval);
     }
 }
 
@@ -187,9 +206,21 @@ function createHeart() {
     const heart = document.createElement('div');
     heart.classList.add('heart');
     heart.style.left = Math.random() * 100 + 'vw';
-    heart.style.animationDuration = (4 + Math.random() * 3) + 's';
+    heart.style.animationDuration = (3 + Math.random() * 3) + 's';
+    
+    // Add some color variety
+    const colors = ['#ff4d4d', '#ff0000', '#ff85a2', '#ff0a54'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    heart.style.background = randomColor;
+    heart.style.setProperty('--heart-color', randomColor); 
+    // Applying color to pseudo-elements via CSS would need a different approach, 
+    // but this keeps it simple.
+
     document.body.appendChild(heart);
-    setTimeout(() => heart.remove(), 6000);
+
+    setTimeout(() => {
+        heart.remove();
+    }, 5000);
 }
 </script>
 
