@@ -17,13 +17,14 @@
     }
 
     .envelope {
-        width: 320px;
-        height: 200px;
+        width: 380px;
+        height: 220px;
         background: #fff;
         position: relative;
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         transition: transform 0.5s ease;
+        overflow: visible; /* allow letter to come out */
     }
 
     .flap {
@@ -62,17 +63,17 @@
     .letter {
         position: absolute;
         width: 90%;
-        height: 260px;
         background: #fff8dc;
-        top: 20px;
+        bottom: 0;
         left: 5%;
-        padding: 20px;
+        padding: 25px;
         box-sizing: border-box;
-        transform: translateY(100%);
-        transition: transform 0.7s ease;
+        transform: translateY(120%); /* hidden inside envelope */
+        opacity: 0;
+        transition: transform 0.9s ease, opacity 0.6s ease;
         box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        overflow-y: auto;
-        border-radius: 5px;
+        border-radius: 6px;
+        line-height: 1.6;
     }
 
     .open .flap {
@@ -80,7 +81,8 @@
     }
 
     .open .letter {
-        transform: translateY(-40%);
+        transform: translateY(-130%); /* slides out above envelope */
+        opacity: 1;
     }
 
     .open .seal {
@@ -88,12 +90,11 @@
     }
 
     .letter p {
-        margin: 10px 0;
-        line-height: 1.5;
+        margin: 12px 0;
     }
 
     .signature {
-        margin-top: 20px;
+        margin-top: 25px;
         font-style: italic;
     }
 
@@ -158,7 +159,7 @@
 </div>
 
 <!-- Local Background Music -->
-<audio id="bgMusic" src="birthday.mp3" preload="auto"></audio>
+<audio id="bgMusic" src="assets/music/birthday.mp3" preload="auto"></audio>
 
 <script>
 function openLetter(el) {
@@ -169,7 +170,6 @@ function openLetter(el) {
     music.volume = 0;
     music.play();
 
-    // fade-in effect
     let volume = 0;
     const fade = setInterval(() => {
         if (volume < 0.5) {
