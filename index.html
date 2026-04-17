@@ -174,7 +174,7 @@ function toggleLetter() {
         container.classList.add('open');
 
         // Set volume to 20%
-        music.volume = 0.2; 
+        music.volume = 0.5; 
         
         music.play().catch(e => console.log("Music play blocked"));
         heartInterval = setInterval(createHeart, 300);
