@@ -16,11 +16,11 @@
         overflow: hidden;
     }
 
-    /* WRAPPER */
+    /* CONTAINER */
     .container {
         position: relative;
         width: 450px;
-        height: 300px;
+        height: 320px;
     }
 
     /* ENVELOPE */
@@ -35,7 +35,7 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         z-index: 5;
         border-radius: 8px;
-        transition: opacity 0.6s ease, transform 0.6s ease;
+        transition: transform 0.8s ease, opacity 0.8s ease;
     }
 
     .flap {
@@ -45,7 +45,7 @@
         background: #f8c8dc;
         clip-path: polygon(0 0, 100% 0, 50% 60%);
         transform-origin: top;
-        transition: transform 0.6s ease;
+        transition: transform 0.7s ease;
         z-index: 6;
     }
 
@@ -66,40 +66,42 @@
         font-weight: bold;
     }
 
-    /* LETTER (BEHIND ENVELOPE BUT BIGGER) */
+    /* LETTER (hidden inside envelope at start) */
     .letter {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        min-height: 600px;
+        min-height: 650px;
         background: #fffdf5;
         padding: 50px;
         box-sizing: border-box;
         border-radius: 10px;
         box-shadow: 0 25px 60px rgba(0,0,0,0.25);
-        z-index: 1;
+        z-index: 2;
         line-height: 1.9;
         text-align: justify;
+
+        /* hidden inside envelope */
+        transform: translateY(120px) scale(0.95);
+        opacity: 0;
+        transition: transform 1s ease, opacity 0.8s ease;
     }
 
     /* OPEN STATE */
-    .container.open .envelope {
-        opacity: 0;
-        transform: scale(0.9);
-        pointer-events: none;
-    }
-
     .container.open .flap {
         transform: rotateX(180deg);
     }
 
-    .container.open .seal {
-        display: none;
+    .container.open .envelope {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+        pointer-events: none;
     }
 
     .container.open .letter {
-        z-index: 10;
+        transform: translateY(0) scale(1);
+        opacity: 1;
     }
 
     .letter p {
@@ -115,12 +117,13 @@
 
     /* hearts */
     .heart {
-        position: absolute;
+        position: fixed;
         width: 15px;
         height: 15px;
         background: red;
         transform: rotate(45deg);
-        animation: float 6s infinite ease-in;
+        animation: float 6s linear infinite;
+        opacity: 0.9;
     }
 
     .heart::before,
@@ -138,7 +141,7 @@
 
     @keyframes float {
         0% { transform: translateY(0) rotate(45deg); opacity: 1; }
-        100% { transform: translateY(-600px) rotate(45deg); opacity: 0; }
+        100% { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
     }
 </style>
 </head>
@@ -146,7 +149,7 @@
 
 <div class="container" id="container">
 
-    <!-- LETTER -->
+    <!-- LETTER (behind envelope, hidden initially) -->
     <div class="letter">
         <p><strong>Happy Birthday Love!</strong></p>
 
@@ -175,6 +178,8 @@
 <audio id="bgMusic" src="birthday.mp3" preload="auto" playsinline></audio>
 
 <script>
+let heartInterval;
+
 function toggleLetter() {
     const container = document.getElementById('container');
     const music = document.getElementById('bgMusic');
@@ -183,30 +188,36 @@ function toggleLetter() {
 
     if (!isOpen) {
         container.classList.add('open');
-        createHearts();
 
+        // music
         music.volume = 0.5;
         music.currentTime = 0;
         music.play().catch(err => console.log(err));
 
+        // continuous hearts
+        heartInterval = setInterval(createHeart, 300);
+
     } else {
         container.classList.remove('open');
+
         music.pause();
         music.currentTime = 0;
+
+        // stop hearts
+        clearInterval(heartInterval);
     }
 }
 
-function createHearts() {
-    for (let i = 0; i < 20; i++) {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.style.left = Math.random() * window.innerWidth + 'px';
-        heart.style.top = window.innerHeight + 'px';
-        heart.style.animationDuration = (3 + Math.random() * 3) + 's';
-        document.body.appendChild(heart);
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.bottom = '0px';
+    heart.style.animationDuration = (4 + Math.random() * 2) + 's';
 
-        setTimeout(() => heart.remove(), 6000);
-    }
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 6000);
 }
 </script>
 
