@@ -25,7 +25,7 @@
         cursor: pointer;
         box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         transition: opacity 0.8s ease;
-        overflow: visible;
+        z-index: 2;
     }
 
     .flap {
@@ -64,63 +64,47 @@
     .letter {
         position: absolute;
         width: 90%;
+        max-width: 900px;
         background: #fffdf5;
-        bottom: 0;
-        left: 5%;
-        padding: 30px;
+        padding: 40px;
         box-sizing: border-box;
-        transform: translateY(120%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, 120%);
         opacity: 0;
-        transition: transform 0.9s ease, opacity 0.6s ease;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        border-radius: 6px;
-        line-height: 1.8;
+        transition: all 0.9s ease;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        border-radius: 8px;
+        line-height: 1.9;
         text-align: justify;
+        z-index: 1;
     }
 
     .open .flap {
         transform: rotateX(180deg);
     }
 
-    .open .letter {
-        transform: translateY(-130%);
-        opacity: 1;
-    }
-
     .open .seal {
         display: none;
     }
 
-    /* FINAL FULL LETTER VIEW */
+    /* FINAL VIEW */
     .final .envelope {
         opacity: 0;
         pointer-events: none;
     }
 
-    .final {
-        justify-content: center;
-        align-items: flex-start;
-        padding-top: 40px;
-        overflow: hidden;
-    }
-
     .final .letter {
-        position: relative;
-        transform: none;
+        transform: translate(-50%, -50%);
         opacity: 1;
-        width: 700px;
-        max-width: 90%;
-        margin: 0 auto;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-        border-radius: 8px;
     }
 
     .letter p {
-        margin: 14px 0;
+        margin: 16px 0;
     }
 
     .signature {
-        margin-top: 30px;
+        margin-top: 40px;
         font-style: italic;
         text-align: right;
     }
@@ -166,23 +150,23 @@
 <div class="envelope" onclick="openLetter(this)">
     <div class="flap"></div>
     <div class="seal">❤</div>
+</div>
 
-    <div class="letter" id="letter">
-        <p><strong>Happy Birthday Love!</strong></p>
+<div class="letter" id="letter">
+    <p><strong>Happy Birthday Love!</strong></p>
 
-        <p>I thank God for today, because even though the world doesn't deserve it,
-        you came and made it better. I wish you more success and happiness in the years
-        to come. Its been months since we met, and I can truly say those months were
-        the best months of my life. I finally found that someone I can truly be happy with.</p>
+    <p>I thank God for today, because even though the world doesn't deserve it,
+    you came and made it better. I wish you more success and happiness in the years
+    to come. Its been months since we met, and I can truly say those months were
+    the best months of my life. I finally found that someone I can truly be happy with.</p>
 
-        <p>You always ask me why I fell inlove with you, to be honest there is so much that I can't list
-        them all. But I can say this, you make me happy. You make me a better person.
-        You make life worth living. And I can't wait to spend the rest of my days with you,
-        and get to know you fully. No matter what life throws at us, be it for better or 
-        for worse. I want it to be with you.</p>
+    <p>You always ask me why I fell inlove with you, to be honest there is so much that I can't list
+    them all. But I can say this, you make me happy. You make me a better person.
+    You make life worth living. And I can't wait to spend the rest of my days with you,
+    and get to know you fully. No matter what life throws at us, be it for better or 
+    for worse. I want it to be with you.</p>
 
-        <p class="signature">Yours truly,<br>Kevin2026</p>
-    </div>
+    <p class="signature">Yours truly,<br>Kevin2026</p>
 </div>
 
 <audio id="bgMusic" src="assets/music/birthday.mp3" preload="auto"></audio>
@@ -198,7 +182,7 @@ function openLetter(el) {
 
     let volume = 0;
     const fade = setInterval(() => {
-        if (volume < 0.3) {
+        if (volume < 0.4) {
             volume += 0.02;
             music.volume = volume;
         } else {
@@ -206,10 +190,10 @@ function openLetter(el) {
         }
     }, 200);
 
-    // after animation, fade envelope and show full letter
+    // reveal full letter after short delay
     setTimeout(() => {
         document.body.classList.add('final');
-    }, 1200);
+    }, 1000);
 }
 
 function createHearts() {
