@@ -14,7 +14,6 @@
         background: linear-gradient(135deg, #ff9a9e, #fad0c4);
         font-family: 'Georgia', serif;
         overflow: hidden;
-        transition: all 0.8s ease;
     }
 
     .envelope {
@@ -54,28 +53,23 @@
         justify-content: center;
         color: white;
         font-weight: bold;
-        transition: transform 0.3s ease;
-    }
-
-    .seal:hover {
-        transform: translate(-50%, -50%) scale(1.1);
     }
 
     .letter {
         position: absolute;
         width: 90%;
-        max-width: 900px;
+        max-width: 1000px;
         background: #fffdf5;
-        padding: 40px;
+        padding: 50px;
         box-sizing: border-box;
         top: 50%;
         left: 50%;
         transform: translate(-50%, 120%);
-        opacity: 0;
-        transition: all 0.9s ease;
+        /* IMPORTANT: no opacity fade */
+        transition: transform 0.9s ease;
         box-shadow: 0 20px 40px rgba(0,0,0,0.25);
         border-radius: 8px;
-        line-height: 1.9;
+        line-height: 2;
         text-align: justify;
         z-index: 1;
     }
@@ -88,7 +82,6 @@
         display: none;
     }
 
-    /* FINAL VIEW */
     .final .envelope {
         opacity: 0;
         pointer-events: none;
@@ -96,20 +89,20 @@
 
     .final .letter {
         transform: translate(-50%, -50%);
-        opacity: 1;
     }
 
     .letter p {
-        margin: 16px 0;
+        margin: 18px 0;
+        font-size: 18px;
     }
 
     .signature {
-        margin-top: 40px;
+        margin-top: 50px;
         font-style: italic;
         text-align: right;
+        font-size: 18px;
     }
 
-    /* floating hearts */
     .heart {
         position: absolute;
         width: 15px;
@@ -129,15 +122,8 @@
         position: absolute;
     }
 
-    .heart::before {
-        top: -8px;
-        left: 0;
-    }
-
-    .heart::after {
-        left: -8px;
-        top: 0;
-    }
+    .heart::before { top: -8px; left: 0; }
+    .heart::after { left: -8px; top: 0; }
 
     @keyframes float {
         0% { transform: translateY(0) rotate(45deg); opacity: 1; }
@@ -152,7 +138,7 @@
     <div class="seal">❤</div>
 </div>
 
-<div class="letter" id="letter">
+<div class="letter">
     <p><strong>Happy Birthday Love!</strong></p>
 
     <p>I thank God for today, because even though the world doesn't deserve it,
@@ -169,7 +155,7 @@
     <p class="signature">Yours truly,<br>Kevin2026</p>
 </div>
 
-<audio id="bgMusic" src="assets/music/birthday.mp3" preload="auto"></audio>
+<audio id="bgMusic" src="birthday.mp3" preload="auto"></audio>
 
 <script>
 function openLetter(el) {
@@ -177,12 +163,22 @@ function openLetter(el) {
     createHearts();
 
     const music = document.getElementById('bgMusic');
-    music.volume = 0;
-    music.play();
 
+    // FIX: ensure play works
+    music.volume = 0;
+    const playPromise = music.play();
+
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            // fallback: try again on user interaction
+            document.body.addEventListener('click', () => music.play(), { once: true });
+        });
+    }
+
+    // fade in
     let volume = 0;
     const fade = setInterval(() => {
-        if (volume < 0.4) {
+        if (volume < 0.3) {
             volume += 0.02;
             music.volume = volume;
         } else {
@@ -190,10 +186,9 @@ function openLetter(el) {
         }
     }, 200);
 
-    // reveal full letter after short delay
     setTimeout(() => {
         document.body.classList.add('final');
-    }, 1000);
+    }, 800);
 }
 
 function createHearts() {
